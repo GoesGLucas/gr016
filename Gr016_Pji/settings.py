@@ -84,21 +84,19 @@ WSGI_APPLICATION = 'Gr016_Pji.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gr016_pji',
-        'USER': 'gr016',
-        'PASSWORD': 'gr016univesp',
-        'HOST': 'localhost',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'HCGTEYjdrymdmQjjffzemAuDNgUlFQYJ',
+        'HOST': 'postgres.railway.internal',
         'PORT': '5432',
     }
 }
-"""
-DATABASES = {
-    "default": dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600),
-}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
