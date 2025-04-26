@@ -149,4 +149,9 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-CSRF_TRUSTED_ORIGINS = ['https://gr016-production.up.railway.app/']
+CSRF_TRUSTED_ORIGINS = [
+    'https://gr016-production.up.railway.app',
+    'http://gr016-production.up.railway.app',
+    'https://www.gr016-production.up.railway.app',
+    'http://www.gr016-production.up.railway.app',
+]
