@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'Gr016_Pji.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -95,6 +95,16 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+"""
+
+try:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default='postgres://localhost:5432/mydb')
+    }
+except ImportError:
+    print("dj-database-url not found")
+
 
 
 # Password validation
