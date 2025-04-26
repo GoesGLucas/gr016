@@ -148,3 +148,5 @@ USE_DJANGO_JQUERY = True
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+CSRF_TRUSTED_ORIGINS = ['https://gr016-production.up.railway.app/']
