@@ -834,3 +834,4 @@ def gerar_itens_inspecao(request, id):
     gerar_itens_inspecao_para_recebimento(recebimento)
     messages.success(request, 'Itens de inspeção gerados com sucesso.')
     return redirect('recebimentos_list')
+
