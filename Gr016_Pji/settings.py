@@ -99,12 +99,13 @@ DATABASES = {
 
 try:
     import dj_database_url
+    database_url = os.environ.get('DATABASE_URL')
+    print(f"DATABASE_URL: {database_url}")  # Adicione esta linha para depuração
     DATABASES = {
         'default': dj_database_url.config(default='postgres://localhost:5432/mydb')
     }
 except ImportError:
     print("dj-database-url not found")
-
 
 
 # Password validation
