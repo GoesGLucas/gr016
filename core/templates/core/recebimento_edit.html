@@ -1,0 +1,221 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>✏️ Editar Recebimento</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h4>Dados do Recebimento</h4>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Data de Recebimento</label>
+                {{ form.data_recebimento|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Número NF</label>
+                {{ form.numero_nf|add_class:"form-control" }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Número Contrato</label>
+                {{ form.numero_contrato|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Técnico Responsável</label>
+                {{ form.tecnico_responsavel|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Técnico de Recebimento</label>
+                {{ form.tecnico_recebimento|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Fornecedor</label>
+                {{ form.fornecedor|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Transportadora</label>
+                {{ form.transportadora|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Entregador</label>
+                {{ form.entregador|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Documento do Entregador</label>
+                {{ form.documento_entregador|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Volumes Recebidos</label>
+                {{ form.volumes_recebidos|add_class:"form-control" }}
+            </div>
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Observações</label>
+                {{ form.observacoes|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <hr>
+
+        <h5>Produtos Recebidos</h5>
+        <div id="produto-formset">
+            {{ formset.management_form }}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
+            {% for form in formset %}
+                <div class="row mb-2 border p-2 rounded produto-form">
+                    {{ form.id }}
+                    <div class="col-md-3">
+                        {{ form.tipo_produto.label_tag }} {{ form.tipo_produto|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.quantidade_recebida.label_tag }} {{ form.quantidade_recebida|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.quantidade_nf.label_tag }} {{ form.quantidade_nf|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.preco_unitario.label_tag }} {{ form.preco_unitario|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.preco_total.label_tag }} {{ form.preco_total|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center">
+                        {% if form.DELETE %}
+                            <div class="form-check">
+                              {{ form.DELETE|add_class:"form-check-input" }}
+                              <label class="form-check-label">Remover</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div id="form-empty" class="d-none">
+                <div class="row mb-2 border p-2 rounded produto-form">
+                    {{ formset.empty_form.id }}
+                    {{ formset.empty_form.DELETE }}
+                    <div class="col-md-3">
+                        {{ formset.empty_form.tipo_produto.label_tag }} {{ formset.empty_form.tipo_produto|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ formset.empty_form.quantidade_recebida.label_tag }} {{ formset.empty_form.quantidade_recebida|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ formset.empty_form.quantidade_nf.label_tag }} {{ formset.empty_form.quantidade_nf|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ formset.empty_form.preco_unitario.label_tag }} {{ formset.empty_form.preco_unitario|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ formset.empty_form.preco_total.label_tag }} {{ formset.empty_form.preco_total|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center">
+                        <label class="ms-1">Remover</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="add-form" class="btn btn-outline-success mt-2">Adicionar outro produto recebido</button>
+
+        <hr>
+
+        <h4>Arquivos Anexados</h4>
+        {% if recebimento.anexos.all %}
+            <ul>
+                {% for anexo in recebimento.anexos.all %}
+                    <li>
+                        <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
+                        <a href="{% url 'excluir_anexo_recebimento' recebimento.id anexo.id %}"
+                           class="btn btn-danger btn-sm ml-2"
+                           onclick="return confirm('Tem certeza que deseja excluir este anexo?');">
+                            Excluir
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum anexo encontrado.</p>
+        {% endif %}
+
+        <h5>Adicionar Anexos</h5>
+        <div id="anexos-container">
+            <div class="form-group">
+                <label for="arquivo_0">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control-file" id="arquivo_0">
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mt-3" id="add-anexo-btn">Adicionar outro Anexo</button>
+
+        <div class="row mt-3">
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+            <div class="col-md-auto">
+                <a href="{% url 'recebimentos_list' %}" class="btn btn-secondary ml-2">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addProductBtn = document.getElementById('add-form');
+        const formsetContainer = document.getElementById('produto-formset');
+        const totalForms = document.getElementById('id_produtos-TOTAL_FORMS');
+        let formCount = parseInt(totalForms.value);
+
+        addProductBtn.addEventListener('click', function () {
+            const newForm = document.querySelector('#form-empty .produto-form').cloneNode(true);
+            newForm.querySelectorAll('input[type="number"], input[type="text"], select').forEach(field => field.value = '');
+
+            newForm.querySelectorAll('[name]').forEach(field => {
+                field.name = field.name.replace(/__prefix__/g, formCount);
+                field.id = field.id.replace(/__prefix__/g, formCount);
+            });
+
+            newForm.querySelectorAll('label[for]').forEach(label => {
+                label.htmlFor = label.htmlFor.replace(/__prefix__/g, formCount);
+            });
+
+            formsetContainer.appendChild(newForm);
+            formCount++;
+            totalForms.value = formCount;
+        });
+
+        const addAnexoBtn = document.getElementById('add-anexo-btn');
+        const anexosContainer = document.getElementById('anexos-container');
+        let anexoCounter = 1;
+
+        addAnexoBtn.addEventListener('click', function () {
+            const newAnexoDiv = document.createElement('div');
+            newAnexoDiv.classList.add('form-group');
+            newAnexoDiv.innerHTML =
+                `<label for="arquivo_${anexoCounter}">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control-file" id="arquivo_${anexoCounter}">`;
+            anexosContainer.appendChild(newAnexoDiv);
+            anexoCounter++;
+        });
+    });
+</script>
+{% endblock %}

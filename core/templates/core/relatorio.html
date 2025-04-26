@@ -1,0 +1,116 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="mb-4">📋 Relatório de Produtos</h1>
+
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <input type="text" name="busca" value="{{ busca|default_if_none:'' }}" class="form-control" placeholder="Informe o código do produto">
+            </div>
+            <div class="col-md-3">
+                <select name="setor" class="form-select">
+                    <option value="">Todos os setores</option>
+                    {% for s in setores %}
+                        <option value="{{ s }}" {% if s == filtro_setor %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">Todos os status</option>
+                    {% for s in statuses %}
+                        <option value="{{ s }}" {% if s == filtro_status %}selected{% endif %}>
+                            {% if s == 'OK' %}Preservação OK{% elif s == 'RESTRICAO' %}Com Restrições{% else %}Não informado{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="{% url 'relatorio' %}" class="btn btn-secondary">Limpar</a>
+                <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}exportar=1" class="btn btn-success">📤 Excel</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nº Recebimento</th>
+                        <th>Data</th>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Setor</th>
+                        <th>Local</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for d in page_obj.object_list %}
+                    <tr>
+                        <td>{{ d.numero_recebimento }}</td>
+                        <td>{{ d.data_recebimento|date:"d/m/Y" }}</td>
+                        <td>{{ d.codigo_produto }}</td>
+                        <td>{{ d.descricao }}</td>
+                        <td>{{ d.setor }}</td>
+                        <td>{{ d.local }}</td>
+                        <td>
+                            {% if d.status_preservacao == 'OK' %}
+                                <span class="badge bg-success">OK</span>
+                            {% elif d.status_preservacao == 'RESTRICAO' %}
+                                <span class="badge bg-warning text-dark">Com Restrições</span>
+                            {% else %}
+                                <span class="text-muted">Não informado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Nenhum dado encontrado.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="d-flex justify-content-center mt-3">
+            <nav>
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if filtro_setor %}&setor={{ filtro_setor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}" aria-label="Primeira">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filtro_setor %}&setor={{ filtro_setor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filtro_setor %}&setor={{ filtro_setor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}" aria-label="Próxima">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if filtro_setor %}&setor={{ filtro_setor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}" aria-label="Última">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+        <p class="text-muted mt-3">Total de registros: <strong>{{ dados|length }}</strong></p>
+    </div>
+{% endblock %}

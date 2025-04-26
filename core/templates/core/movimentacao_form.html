@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Editar Movimentação{% else %}Nova Movimentação{% endif %}</h2>
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        {{ form.media }}  {# Carrega arquivos CSS e JS do django-select2, se houver #}
+
+        <div class="mb-3">
+            <label for="{{ form.item.id_for_label }}" class="form-label">Produto</label>
+            {{ form.item|add_class:"form-control w-100" }}
+            {% if form.item.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.item.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.setor.id_for_label }}" class="form-label">Setor</label>
+            {{ form.setor|add_class:"form-control" }}
+            {% if form.setor.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.setor.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.local.id_for_label }}" class="form-label">Localização</label>
+            {{ form.local|add_class:"form-control" }}
+            {% if form.local.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.local.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}Salvar Edições{% else %}Cadastrar Movimentação{% endif %}
+        </button>
+        <a href="{% url 'movimentacao_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+{# JQuery para atualizar o campo local dinamicamente ao mudar setor #}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_setor').change(function() {
+            var setorId = $(this).val();
+            var $localSelect = $('#id_local');
+            if (setorId) {
+                $.ajax({
+                    url: "{% url 'ajax_load_localizacoes' %}",
+                    data: {
+                        'setor_id': setorId
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        $localSelect.empty();
+                        $localSelect.append('<option value="">---------</option>');
+                        $.each(data.locais, function(index, local) {
+                            $localSelect.append('<option value="' + local.id + '">' + local.local + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $localSelect.empty();
+                $localSelect.append('<option value="">---------</option>');
+            }
+        });
+    });
+</script>
+{% endblock %}

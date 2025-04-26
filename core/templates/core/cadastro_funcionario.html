@@ -1,0 +1,88 @@
+{% extends 'core/home.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Cadastro de Funcionário</h2>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success">Salvar</button>
+    </form>
+
+    <hr>
+    <!-- Formulário de Busca -->
+    <h4>Buscar Funcionários</h4>
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="nome" value="{{ nome }}" class="form-control" placeholder="Buscar por Nome">
+        </div>
+        <div class="col-md-4">
+            <input type="text" name="cargo" value="{{ cargo }}" class="form-control" placeholder="Buscar por Cargo">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            <a href="{% url 'cadastrar_funcionario' %}" class="btn btn-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <!-- Lista de Funcionários -->
+    <h4>Funcionários Cadastrados</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Cargo</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in page_obj %}
+            <tr>
+                <td>{{ f.nome }}</td>
+                <td>{{ f.cargo }}</td>
+                <td>{{ f.telefone }}</td>
+                <td>{{ f.email }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhum funcionário cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Navegação da página">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if nome %}&nome={{ nome }}{% endif %}{% if cargo %}&cargo={{ cargo }}{% endif %}">&laquo; Primeira</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if nome %}&nome={{ nome }}{% endif %}{% if cargo %}&cargo={{ cargo }}{% endif %}">Anterior</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if nome %}&nome={{ nome }}{% endif %}{% if cargo %}&cargo={{ cargo }}{% endif %}">Próxima</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if nome %}&nome={{ nome }}{% endif %}{% if cargo %}&cargo={{ cargo }}{% endif %}">Última &raquo;</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

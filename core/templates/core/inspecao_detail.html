@@ -1,0 +1,200 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Detalhes da Inspeção: {{ item_inspecao.produto_recebido.tipo_produto }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.recebimento.as_hidden }}
+        {{ form.produto_recebido.as_hidden }}
+        {{ form.codigo_produto.as_hidden }}
+
+        <div class="mb-3">
+            <label class="form-label">Recebimento</label>
+            <input type="text" class="form-control" value="{{ item_inspecao.recebimento }}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Produto Recebido</label>
+            <input type="text" class="form-control" value="{{ item_inspecao.produto_recebido.tipo_produto.nome }}" readonly>
+        </div>
+
+        <div class="mb-3">
+                <label class="form-label">Código do Produto</label>
+                <input type="text" class="form-control" value="{{ item_inspecao.codigo_produto }}" readonly>
+                <input type="hidden" name="codigo_produto" value="{{ item_inspecao.codigo_produto }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="serial_produto" class="form-label">Serial do Produto</label>
+            {{ form.serial_produto }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.descricao.id_for_label }}" class="form-label">{{ form.descricao.label }}</label>
+            <div class="d-flex align-items-center gap-2">
+                {{ form.descricao }}
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addDescricaoModal">+</button>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="dimensao" class="form-label">Dimensão</label>
+            {{ form.dimensao }}
+        </div>
+
+        <div class="mb-3">
+            <label for="peso" class="form-label">Peso</label>
+            {{ form.peso }}
+        </div>
+
+        <div class="mb-3 form-check">
+            {{ form.patrimonio }}
+            <label class="form-check-label" for="patrimonio">Patrimônio</label>
+        </div>
+
+        <div class="mb-3 form-check">
+            {{ form.preservacao }}
+            <label class="form-check-label" for="preservacao">Preservação</label>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.tipo_preservacao.id_for_label }}" class="form-label">{{ form.tipo_preservacao.label }}</label>
+            <div class="d-flex align-items-center gap-2">
+                {{ form.tipo_preservacao }}
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addTipoPreservacaoModal">+</button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salvar Inspeção</button>
+        <a href="{% url 'inspecao' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <div class="modal fade" id="addDescricaoModal" tabindex="-1" aria-labelledby="addDescricaoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDescricaoModalLabel">Adicionar Nova Descrição</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDescricaoForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="tipo_produto_descricao_modal" class="form-label">Tipo de Produto</label>
+                            <select class="form-control" id="tipo_produto_descricao_modal" name="tipo_produto">
+                                {% if tipos_produto %}
+                                    {% for tipo in tipos_produto %}
+                                        <option value="{{ tipo.id }}">{{ tipo.nome }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>Nenhum tipo de produto cadastrado</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descricao_modal" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="descricao_modal" name="descricao" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveNewDescricao()">Salvar Descrição</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addTipoPreservacaoModal" tabindex="-1" aria-labelledby="addTipoPreservacaoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTipoPreservacaoModalLabel">Adicionar Novo Tipo de Preservação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTipoPreservacaoForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nome_tipo_preservacao_modal" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="nome_tipo_preservacao_modal" name="nome" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveNewTipoPreservacao()">Salvar Tipo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#{{ form.descricao.id }}').select2();
+        $('#{{ form.tipo_preservacao.id }}').select2();
+    });
+
+    function saveNewDescricao() {
+        const tipo_produto = $('#tipo_produto_descricao_modal').val();
+        const descricao = $('#descricao_modal').val();
+        const csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: '{% url "cadastrar_descricao_produto_ajax" %}',
+            type: 'POST',
+            data: {
+                tipo_produto: tipo_produto,
+                descricao: descricao,
+                csrfmiddlewaretoken: csrf_token
+            },
+            success: function(response) {
+                if (response.success) {
+                    const selectDescricao = $('[name="{{ form.descricao.name }}"]');
+
+                    const newOption = new Option(response.descricao, response.id, false, false);
+                    selectDescricao.append(newOption).val(response.id).trigger('change');
+
+                    $('#addDescricaoModal').modal('hide');
+                    $('#descricao_modal').val('');
+                } else {
+                    alert('Erro ao salvar a descrição.');
+                }
+            },
+            error: function(error) {
+                console.error('Erro na requisição AJAX:', error);
+                alert('Erro na requisição.');
+            }
+        });
+    }
+
+
+    function saveNewTipoPreservacao() {
+        const nome = $('#nome_tipo_preservacao_modal').val();
+        const csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: '{% url "cadastrar_tipo_preservacao_ajax" %}',
+            type: 'POST',
+            data: {
+                nome: nome,
+                csrfmiddlewaretoken: csrf_token
+            },
+            success: function(response) {
+                if (response.success) {
+                    const newOption = new Option(response.nome, response.id, false, true);
+                    $('[name="{{ form.tipo_preservacao.name }}"]').append(newOption).trigger('change');
+                    $('#addTipoPreservacaoModal').modal('hide');
+                    $('#nome_tipo_preservacao_modal').val('');
+                } else {
+                    alert('Erro ao salvar o tipo de preservação.');
+                }
+            },
+            error: function(error) {
+                console.error('Erro na requisição AJAX:', error);
+                alert('Erro na requisição.');
+            }
+        });
+    }
+</script>
+{% endblock %}

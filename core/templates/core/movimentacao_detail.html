@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Detalhes da Movimentação</h2>
+
+    <p><strong>Produto:</strong> {{ movimentacao.item.codigo_produto }}</p>
+    <p><strong>Setor:</strong> {{ movimentacao.setor.nome }}</p>
+    <p><strong>Localização:</strong> {{ movimentacao.local.local }}</p>
+    <p><strong>Data de Movimentação:</strong> {{ movimentacao.data_movimentacao }}</p>
+
+    {% if editable %}
+        <a href="{% url 'movimentacao_edit' movimentacao.id %}" class="btn btn-warning">Editar</a>
+    {% endif %}
+
+</div>
+{% endblock %}

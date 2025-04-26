@@ -1,0 +1,39 @@
+body {
+  padding-top: 70px;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1030;
+}
+
+footer {
+  background-color: #343a40;
+  color: #ffffff;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.875rem;
+  margin-top: 40px;
+}
+
+html, body {
+    height: 100%;
+}
+
+.container {
+    min-height: calc(100vh - 60px);
+    padding-bottom: 60px;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
+}

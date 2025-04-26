@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📝 Solicitação de Uso</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="{{ form.item.id_for_label }}" class="form-label">Código do Produto</label>
+            {{ form.item|add_class:"form-control" }}
+            {% if form.item.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.item.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.solicitante.id_for_label }}" class="form-label">Solicitante</label>
+            {{ form.solicitante|add_class:"form-control" }}
+            {% if form.solicitante.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.solicitante.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.motivo.id_for_label }}" class="form-label">Motivo da Solicitação</label>
+            {{ form.motivo|add_class:"form-control" }}
+            {% if form.motivo.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.motivo.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.observacoes.id_for_label }}" class="form-label">Observações</label>
+            {{ form.observacoes|add_class:"form-control" }}
+            {% if form.observacoes.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.observacoes.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <hr>
+        <h4>Anexos</h4>
+        <div id="anexos-container">
+            <div class="mb-3">
+                <label for="arquivo_0" class="form-label">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control" id="arquivo_0">
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary" id="add-anexo-btn">Adicionar outro Anexo</button>
+
+        <button type="submit" class="btn btn-primary">Solicitar Uso</button>
+        <a href="{% url 'solicitacao_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addAnexoBtn = document.getElementById('add-anexo-btn');
+        const anexosContainer = document.getElementById('anexos-container');
+        let anexoCounter = 1;
+
+        addAnexoBtn.addEventListener('click', function () {
+            const newAnexoDiv = document.createElement('div');
+            newAnexoDiv.classList.add('mb-3');
+            newAnexoDiv.innerHTML = `
+                <label for="arquivo_${anexoCounter}" class="form-label">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control" id="arquivo_${anexoCounter}">
+            `;
+            anexosContainer.appendChild(newAnexoDiv);
+            anexoCounter++;
+        });
+    });
+</script>
+{% endblock %}

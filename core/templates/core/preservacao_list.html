@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">📋 Preservações Realizadas</h2>
+        <a href="{% url 'preservacao' %}" class="btn btn-success">Nova Preservação</a>
+    </div>
+
+    <hr>
+    <!-- Formulário de Filtro -->
+    <h4 class="mb-3">Buscar Preservações</h4>
+    <form method="get" class="mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="codigo_produto" class="form-control" placeholder="Código do Produto" value="{{ request.GET.codigo_produto }}">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="serial_produto" class="form-control" placeholder="Serial" value="{{ request.GET.serial_produto }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+            </div>
+        </div>
+    </form>
+    <hr>
+
+    {% if page_obj %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Data da Preservação</th>
+                    <th>Próxima Preservação</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preservacao in page_obj %}
+                    <tr>
+                        <td>{{ preservacao.item.codigo_produto }} - {{ preservacao.item.produto_recebido.tipo_produto.nome }}</td>
+                        <td>{{ preservacao.data_preservacao }}</td>
+                        <td>{{ preservacao.proxima_preservacao|default:"-" }}</td>
+                        <td>{{ preservacao.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">Nenhuma preservação cadastrada.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhuma preservação cadastrada ainda.</p>
+    {% endif %}
+
+    <!-- Paginação -->
+    <div class="d-flex justify-content-center mt-4">
+        <span>Exibindo página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    </div>
+
+    <div class="d-flex justify-content-center mt-2">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; Primeiro</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <a class="page-link">{{ page_obj.number }}</a>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Último &raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

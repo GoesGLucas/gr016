@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Cadastro de Preservação</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="mb-3">
+            <label for="{{ form.item.id_for_label }}" class="form-label">Produto</label>
+            {{ form.item|add_class:"form-control w-100" }}
+            {% if form.item.errors %}
+                <div class="alert alert-danger mt-1">
+                    {% for error in form.item.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label for="{{ form.data_preservacao.id_for_label }}" class="form-label">Data da Preservação</label>
+            {{ form.data_preservacao|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="{{ form.proxima_preservacao.id_for_label }}" class="form-label">Próxima Preservação</label>
+            {{ form.proxima_preservacao|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+            {{ form.status|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.observacoes.id_for_label }}" class="form-label">Observações</label>
+            {{ form.observacoes|add_class:"form-control" }}
+        </div>
+
+        <hr>
+        <h4>Anexos</h4>
+        <div id="anexos-container">
+            <div class="mb-3">
+                <label for="arquivo_0" class="form-label">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control" id="arquivo_0">
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary" id="add-anexo-btn">Adicionar outro Anexo</button>
+
+        <button type="submit" class="btn btn-success">Salvar Preservação</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addAnexoBtn = document.getElementById('add-anexo-btn');
+        const anexosContainer = document.getElementById('anexos-container');
+        let anexoCounter = 1;
+
+        addAnexoBtn.addEventListener('click', function () {
+            const newAnexoDiv = document.createElement('div');
+            newAnexoDiv.classList.add('mb-3');
+            newAnexoDiv.innerHTML = `
+                <label for="arquivo_${anexoCounter}" class="form-label">Arquivo:</label>
+                <input type="file" name="arquivos[]" class="form-control" id="arquivo_${anexoCounter}">
+            `;
+            anexosContainer.appendChild(newAnexoDiv);
+            anexoCounter++;
+        });
+    });
+</script>
+{% endblock %}

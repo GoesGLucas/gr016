@@ -1,0 +1,1 @@
+web: gunicorn Gr016_Pji.wsgi --log-file -

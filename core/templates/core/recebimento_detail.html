@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📝 Detalhes do Recebimento</h2>
+
+    <div class="mb-4">
+        <h4>Informações do Recebimento</h4>
+
+        <div class="mb-3">
+            <label class="form-label">ID do Recebimento</label>
+            <p>{{ recebimento.id }}</p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Número da NF</label>
+            <p>{{ recebimento.numero_nf }}</p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Data de Recebimento</label>
+            <p>{{ recebimento.data_recebimento }}</p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fornecedor</label>
+            <p>{{ recebimento.fornecedor.razao_social }}</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div>
+        <h4>Produtos Recebidos</h4>
+        {% if recebimento.produtos.all %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade Recebida</th>
+                    <th>Quantidade NF</th>
+                    <th>Preço Unitário</th>
+                    <th>Preço Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in recebimento.produtos.all %}
+                <tr>
+                    <td>{{ produto.tipo_produto }}</td>
+                    <td>{{ produto.quantidade_recebida }}</td>
+                    <td>{{ produto.quantidade_nf }}</td>
+                    <td>{{ produto.preco_unitario }}</td>
+                    <td>{{ produto.preco_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="alert alert-warning">Nenhum produto recebido.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'recebimentos_list' %}" class="btn btn-secondary">Voltar para a lista de recebimentos</a>
+    </div>
+</div>
+{% endblock %}

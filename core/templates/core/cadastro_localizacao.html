@@ -1,0 +1,200 @@
+{% extends 'core/home.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Cadastro de Localização</h2>
+
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+
+        <!-- Campo Setor com botão para adicionar novo setor -->
+        <div class="mb-3">
+            <label for="{{ form.setor.id_for_label }}" class="form-label">{{ form.setor.label }}</label>
+            <div class="input-group">
+                {{ form.setor }}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cadastroSetorModal">
+                    +
+                </button>
+            </div>
+            {% if form.setor.errors %}
+                <div class="form-text text-danger">{{ form.setor.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Campo Local -->
+        <div class="mb-3">
+            <label for="{{ form.local.id_for_label }}" class="form-label">{{ form.local.label }}</label>
+            <div class="input-group">
+                {{ form.local }}
+            </div>
+            {% if form.local.errors %}
+                <div class="form-text text-danger">{{ form.local.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Campo Ativo -->
+        <div class="mb-3">
+            <label for="{{ form.ativo.id_for_label }}" class="form-label">{{ form.ativo.label }}</label>
+            <div class="input-group">
+                {{ form.ativo }}
+            </div>
+            {% if form.ativo.errors %}
+                <div class="form-text text-danger">{{ form.ativo.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Botão de Salvar -->
+        <button class="btn btn-success">Salvar</button>
+    </form>
+
+    <hr>
+
+    <h4>Buscar Localizações</h4>
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="local" value="{{ local }}" class="form-control" placeholder="Buscar por Local">
+        </div>
+        <div class="col-md-4">
+            <select name="setor" class="form-control">
+                <option value="">Selecione o Setor</option>
+                {% for setor_busca in setores %}
+                    <option value="{{ setor_busca.nome }}" {% if setor_busca.nome == setor %}selected{% endif %}>{{ setor_busca.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            <a href="{% url 'cadastrar_localizacao' %}" class="btn btn-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <h4>Localizações Cadastradas</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Local</th>
+                <th>Setor</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in page_obj %}
+            <tr>
+                <td>{{ l.local }}</td>
+                <td>{{ l.setor.nome }}</td>
+                <td>{{ l.ativo|yesno:"Ativo,Inativo" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Nenhuma localização cadastrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Navegação da página">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if local %}&local={{ local }}{% endif %}{% if setor %}&setor={{ setor }}{% endif %}">&laquo; Primeira</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if local %}&local={{ local }}{% endif %}{% if setor %}&setor={{ setor }}{% endif %}">Anterior</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if local %}&local={{ local }}{% endif %}{% if setor %}&setor={{ setor }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if local %}&local={{ local }}{% endif %}{% if setor %}&setor={{ setor }}{% endif %}">Próxima</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if local %}&local={{ local }}{% endif %}{% if setor %}&setor={{ setor }}{% endif %}">Última &raquo;</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="modal fade" id="cadastroSetorModal" tabindex="-1" aria-labelledby="cadastroSetorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cadastroSetorModalLabel">Cadastrar Novo Setor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="novoSetorForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nomeSetor" class="form-label">Nome do Setor</label>
+                            <input type="text" class="form-control" id="nomeSetor" name="nome">
+                            <div id="nomeSetorError" class="form-text text-danger"></div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="salvarNovoSetor()">Salvar Setor</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function salvarNovoSetor() {
+        const nomeSetor = document.getElementById('nomeSetor').value.trim();
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('/cadastrar/setor/ajax/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: `nome=${encodeURIComponent(nomeSetor)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Atualiza somente o select do formulário de cadastro
+                const selectSetorCadastro = document.querySelector('form[method="post"] select[name="setor"]');
+                const optionExistente = Array.from(selectSetorCadastro.options).some(opt => opt.value === data.nome);
+
+                if (!optionExistente) {
+                    const novoOption = document.createElement('option');
+                    novoOption.value = data.id; // Aqui é melhor usar o ID real do setor
+                    novoOption.textContent = data.nome;
+                    selectSetorCadastro.appendChild(novoOption);
+                }
+
+                selectSetorCadastro.value = data.id; // Seleciona o novo
+
+                // Fecha o modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('cadastroSetorModal'));
+                modal.hide();
+                document.getElementById('novoSetorForm').reset();
+                document.getElementById('nomeSetorError').textContent = '';
+            } else {
+                document.getElementById('nomeSetorError').textContent = data.error;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao cadastrar setor:', error);
+            document.getElementById('nomeSetorError').textContent = 'Erro ao cadastrar o setor.';
+        });
+    }
+</script>
+{% endblock %}
